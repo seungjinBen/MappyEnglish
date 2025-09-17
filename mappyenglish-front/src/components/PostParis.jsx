@@ -1,9 +1,42 @@
 import '../css/PostParis.css';
-import MyComponent from './Main/Post';
 import BottomBar from './Main/BottomBar'; // 파일이름은 무조건 대문자로!
+import BottomSheet from './Main/BottomSheet';
+import { useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 
 
-function PostParis(){
+const apiKey = process.env.REACT_APP_GMAPS_KEY; // ✅ CRA 방식
+if (!apiKey) {
+  // 런타임 가드(선택)
+  throw new Error('REACT_APP_GMAPS_KEY 가 .env에 설정되지 않았습니다.');
+}
+const GMAPS_LIBRARIES = ['places'];
+
+function PostParis({placeList = []}){
+
+  const [open, setOpen] = useState(false);
+
+  const navigate = useNavigate();
+  const [selectedPlace, setSelectedPlace] = useState(null);
+  const handleMarkerClick = (p) => {
+    setSelectedPlace(p);
+    // 필요하면 state로 정보도 함께 전달
+    navigate(`/paris/${p.id}`, {state: {place:p} });
+  };
+
+  const { isLoaded, loadError } = useJsApiLoader({
+    id: 'google-map',
+    googleMapsApiKey: apiKey,
+    libraries: GMAPS_LIBRARIES, // libraries: ['places'] 코드는
+    // 랜더때마다 ['places']를 새로 만들어 넘기면 스크립트를 다시 로드하려고 해서
+    // 경고가 남.
+  });
+
+  if (loadError) return <div>지도를 불러오는 중 오류가 발생했습니다.</div>;
+  if (!isLoaded) return <div>지도 로딩 중…</div>;
+
 
     return(
         <div id='post-paris'>
@@ -33,52 +66,33 @@ function PostParis(){
                                     <button className="chip sm others"      onclick="initMapE()">기타 시설</button>
                                 </div>
                             </div>
-                            <MyComponent/>
                         </section>
-                        <section className='card-container'>
-                            <div className="container cq" style={{padding:'var(--space-4) 0'}}>
-                                <h2>파리의 대표장소</h2>
 
-                                {/* 컨테이너 쿼리 지원 브라우저: .card-grid / 미지원: .mq-2col */}
-                                <div className="card-grid mq-2col">
-                                    <article className="card shadow-soft">
-                                        <h3 style={{marginTop:0}}>에펠탑</h3>
-                                        <picture>
-                                            <source srcSet="/img/eiffel-1080.jpg 1080w, /img/eiffel-720.jpg 720w, /img/eiffel-480.jpg 480w" />
-                                            <img
-                                            src="/img/에펠탑-720.jpg"
-                                            loading="lazy"
-                                            alt="에펠탑"
-                                            style={{width:'100%', height:'auto', borderRadius:'12px', display:'block', marginBottom:'12px'}}
-                                            sizes="(max-width: 640px) 100vw, 640px"
-                                            />
-                                        </picture>
-                                        <ul style={{margin:0, paddingLeft:'1em'}}>
-                                            <li>Where is the check-in counter?</li>
-                                            <li>Could you help me with my baggage?</li>
-                                        </ul>
-                                    </article>
+                        <GoogleMap onClick={()=> {
+                            setSelectedPlace(null);
+                            navigate('/paris');
+                        }}
+                          mapContainerStyle={{ width: '100%', height: '60vh' }}
+                          center={{ lat: 48.8584, lng: 2.3545 }}
+                          zoom={13}
+                        >
+                        {placeList.map(p => (
+                            <Marker key={p.id} position={{lat:p.lat, lng:p.lng}}
+                            onClick={() => handleMarkerClick(p)} title={p.name}
+                            />
+                            ))}
+                        </GoogleMap>
 
-                                    <article className="card shadow-soft">
-                                        <h3 style={{marginTop:0}}>루브르 박물관</h3>
-                                        {/* ... */}
-                                    </article>
-                                    <article className="card shadow-soft">
-                                        <h3 style={{marginTop:0}}>공항</h3>
-                                        {/* ... */}
-                                    </article>
-                                    <article className="card shadow-soft">
-                                        <h3 style={{marginTop:0}}>공원</h3>
-                                        {/* ... */}
-                                    </article>
-                                    <article className="card shadow-soft">
-                                        <h3 style={{marginTop:0}}>호텔</h3>
-                                        {/* ... */}
-                                    </article>
-
-                                </div>
-                            </div>
-                        </section>
+                        <BottomSheet
+                            open={open}
+                            onOpen={() => setOpen(true)}
+                            onClose={() => setOpen(false)}
+                            title="파리의 대표장소"
+                            peekHeight='22vh'   // 닫혀 있어도 카드 상단이 넉넉히 보이도록
+                            halfHeight = '50vh'
+                            fullHeight = '90vh'
+                        >
+                        </BottomSheet>
                     </div>
                 </main>
 

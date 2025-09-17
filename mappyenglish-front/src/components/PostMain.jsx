@@ -30,14 +30,14 @@ function PostMain({placeList = []}){ // 기본값: []
     return(
         <div id='post-main'>
             <Header/>
-            <BottomBar/>
         <GoogleMap
           mapContainerStyle={{ width: '100%', height: '60vh' }}
-          center={{ lat: 48.8584, lng: 2.2945 }}
+          center={{ lat: 48.8584, lng: 2.3545 }}
           zoom={13}
         >
         {placeList.map(p => (<Marker key={p.id} position={{lat:p.lat, lng:p.lng}} title={p.name}/>))}
         </GoogleMap>
+        <BottomBar/>
             {/* <PostList postList={props.postList}/> */}
         </div>
     )

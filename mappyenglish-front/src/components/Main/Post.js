@@ -22,10 +22,10 @@ export default function MyComponent() {
   return (
     <GoogleMap
       mapContainerStyle={{ width: '100%', height: '60vh' }}
-      center={{ lat: 48.8584, lng: 2.2945 }}
+      center={{ lat: 48.8584, lng: 2.3545 }}
       zoom={13}
     >
-      <Marker position={{ lat: 48.8584, lng: 2.2945 }} />
+      <Marker position={{ lat: 48.8584, lng: 2.3545 }} />
     </GoogleMap>
   );
 }

@@ -111,6 +111,7 @@ html { scroll-behavior: smooth; overscroll-behavior-y: none; }
   @container (min-width: 560px) { .card-grid { grid-template-columns: 1fr 1fr 1fr; } }
 }
 
+
 /* 10) 미디어 쿼리 (컨테이너 쿼리 미지원 브라우저 대비) */
 @media (min-width: 420px) {
   .mq-2col { display: grid; gap: var(--space-4); grid-template-columns: 1fr 1fr; }

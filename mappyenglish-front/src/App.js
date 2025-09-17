@@ -35,6 +35,7 @@ function App() {
         <Routes>
             <Route path='/' element={<PostMain placeList={placeList}/>}/>
             <Route path='/paris' element={<PostParis placeList={placeList}/>}/>
+            <Route path="/paris/:id" element={<PostParis placeList={placeList} />} />
             <Route path='/about' element={<PostAbout placeList={placeList}/>}/>
         </Routes>
       </BrowserRouter>
