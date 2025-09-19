@@ -9,19 +9,23 @@
   - 차이 알아보기 !!!!!!!
 * PostgreSQL에 places와 conversations 테이블 생성 후 데이터 삽입완료.
   - https://benn.tistory.com/28
+--- 
 * PostgreSQL 데이터를 SpringBoot에서 읽어 Json형식으로 보내고, React에서 출력.
   - 1. 의존성 추가 2. DB연결 설정 3. 테이블 예시 4. Entity작성
      5. Repository작성 6. Controller(Rest API)작성
     + 현재 사용하는 CRA(Create React App, 포트 3000)의 대안으로 Vite(포트 5173)가 있음.
 * 시큐리티 문제 때문에 react에서 호출시 login으로 경로가 향해짐
   - 일단 시큐리티 제거, 배포전 다시 넣기!!
+--- 
 * 드디어 proxy호출 완료!
   - setupProxy방법은 안됌.
+--- 
 * 메인시트 BottomSheet 구현 
   - 마커 클릭시 해당 장소 정보 출력.
   - 기본 시트는 도시에 대한 정보를 보여줌.
 * 3단계 스냅(닫힘 -> 반열림 -> 거의 전체)의 시트를 구현하였다.
   - 사용자의 움직임(드래그)을 통해 제어할 수 있음.
+--- 
 * 컬럼/테이블 이름이 스네이크표기이기에 @Column(name = "english_text")로 매핑해주었다.
   - 자바필드는 카멜케이스
 * 응답은 DTO로 만들어 placeId만 노출되도록 한다.
