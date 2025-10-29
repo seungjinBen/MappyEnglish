@@ -14,60 +14,24 @@ import java.util.List;
 @Service
 public class ConversationService {
 
-    private final ConversationRepository conversationRepository;
-    private final PlaceRepository placeRepository;
+    private final ConversationRepository repo;
 
-    public ConversationService(ConversationRepository conversationRepository, PlaceRepository placeRepository) {
-        this.conversationRepository = conversationRepository;
-        this.placeRepository = placeRepository;
+    public ConversationService(ConversationRepository repo) {
+        this.repo = repo;
     }
 
     @Transactional(readOnly = true)
-    public List<ConversationDto> findAll() {
-        return conversationRepository.findAll()
-                .stream().map(ConversationMapper::toDto).toList();
-    }
-
-    @Transactional(readOnly = true)
-    public ConversationDto findById(Long id) {
-        Conversation c = conversationRepository.findById(id)
+    public ConversationDto getById(Long id) {
+        Conversation e = repo.findByIdWithPlace(id)
                 .orElseThrow(() -> new IllegalArgumentException("Conversation not found: " + id));
-        return ConversationMapper.toDto(c);
+        return ConversationMapper.toDto(e);
     }
 
     @Transactional(readOnly = true)
-    public List<ConversationDto> findByPlaceId(Long placeId) {
-        return conversationRepository.findByPlace_Id(placeId)
-                .stream().map(ConversationMapper::toDto).toList();
-    }
-
-    @Transactional
-    public ConversationDto create(ConversationDto dto) {
-        Place place = placeRepository.findById(dto.getPlaceId())
-                .orElseThrow(() -> new IllegalArgumentException("Place not found: " + dto.getPlaceId()));
-        Conversation saved = conversationRepository.save(ConversationMapper.toEntity(dto, place));
-        return ConversationMapper.toDto(saved);
-    }
-
-    @Transactional
-    public ConversationDto update(Long id, ConversationDto dto) {
-        Conversation existing = conversationRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Conversation not found: " + id));
-
-        if (dto.getPlaceId() != null && !dto.getPlaceId().equals(existing.getPlace().getId())) {
-            Place place = placeRepository.findById(dto.getPlaceId())
-                    .orElseThrow(() -> new IllegalArgumentException("Place not found: " + dto.getPlaceId()));
-            existing.setPlace(place);
-        }
-        if (dto.getEnglishText() != null) existing.setEnglishText(dto.getEnglishText());
-        if (dto.getKoreanText() != null)  existing.setKoreanText(dto.getKoreanText());
-        existing.setAudioUrl(dto.getAudioUrl());
-
-        return ConversationMapper.toDto(existing);
-    }
-
-    @Transactional
-    public void delete(Long id) {
-        conversationRepository.deleteById(id);
+    public List<ConversationDto> listByPlace(Long placeId, boolean includePlace) {
+        List<Conversation> list = includePlace
+                ? repo.findAllByPlaceIdWithPlace(placeId)
+                : repo.findAllByPlaceId(placeId);
+        return list.stream().map(ConversationMapper::toDto).toList();
     }
 }

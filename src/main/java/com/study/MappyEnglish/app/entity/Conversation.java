@@ -1,6 +1,15 @@
 package com.study.MappyEnglish.app.entity;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "conversations")
 public class Conversation {
@@ -9,29 +18,46 @@ public class Conversation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // FK: conversation.place_id -> place.id
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    // FK: conversations.place_id → places.id
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "place_id", nullable = false)
     private Place place;
 
-    @Column(name = "english_text", nullable = false, columnDefinition = "text")
-    private String englishText;
+    @Column(name = "type", columnDefinition = "char(1)")
+    private Character type;
 
-    @Column(name = "korean_text", nullable = false, columnDefinition = "text")
-    private String koreanText;
+    @Column(name = "english_text1", columnDefinition = "text")
+    private String englishText1;
+    @Column(name = "korean_text1", columnDefinition = "text")
+    private String koreanText1;
+    @Column(name = "audio_url1")
+    private String audioUrl1;
 
-    @Column(name = "audio_url")
-    private String audioUrl;
+    @Column(name = "english_text2", columnDefinition = "text")
+    private String englishText2;
+    @Column(name = "korean_text2", columnDefinition = "text")
+    private String koreanText2;
+    @Column(name = "audio_url2")
+    private String audioUrl2;
 
-    public Long getId() { return id; }
-    public Place getPlace() { return place; }
-    public String getEnglishText() { return englishText; }
-    public String getKoreanText() { return koreanText; }
-    public String getAudioUrl() { return audioUrl; }
+    @Column(name = "english_text3", columnDefinition = "text")
+    private String englishText3;
+    @Column(name = "korean_text3", columnDefinition = "text")
+    private String koreanText3;
+    @Column(name = "audio_url3")
+    private String audioUrl3;
 
-    public void setId(Long id) { this.id = id; }
-    public void setPlace(Place place) { this.place = place; }
-    public void setEnglishText(String englishText) { this.englishText = englishText; }
-    public void setKoreanText(String koreanText) { this.koreanText = koreanText; }
-    public void setAudioUrl(String audioUrl) { this.audioUrl = audioUrl; }
+    @Column(name = "english_text4", columnDefinition = "text")
+    private String englishText4;
+    @Column(name = "korean_text4", columnDefinition = "text")
+    private String koreanText4;
+    @Column(name = "audio_url4")
+    private String audioUrl4;
+
+    @Column(name = "english_text5", columnDefinition = "text")
+    private String englishText5;
+    @Column(name = "korean_text5", columnDefinition = "text")
+    private String koreanText5;
+    @Column(name = "audio_url5")
+    private String audioUrl5;
 }

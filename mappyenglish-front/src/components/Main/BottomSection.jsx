@@ -1,8 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import './BottomSheet.css';
+import './BottomSection.css';
 import PlaceCards from './PlaceCards';
 
-function BottomSheet({
+function BottomSection({
+  conversations,
+  selectedPlace,
   placeList = [],
   open,        // 외부에서 열림/닫힘 토글해도 되고,
   onOpen,
@@ -13,7 +15,10 @@ function BottomSheet({
   fullHeight// 거의 전체에서 보이는 높이 (=시트 높이)
 }){
     {
+      const items = conversations ?? [];
+      const showPlacesFallback = !conversations && placeList.length > 0;
       const sheetRef = useRef(null);
+      const [peekLocal, setPeekLocal] = useState(peekHeight ?? '32vh');
 
       // 내부 스냅 상태: 'peek' | 'half' | 'full'
       const [snap, setSnap] = useState('peek');
@@ -42,7 +47,7 @@ function BottomSheet({
         return Number.isFinite(n) ? n : 0;
       };
 
-      const peekPx = toPx(peekHeight);
+      const peekPx = toPx(peekLocal);
       const halfPx = toPx(halfHeight);
       const fullPx = toPx(fullHeight);
 
@@ -60,9 +65,8 @@ function BottomSheet({
 
       // 외부 open prop이 바뀌면 스냅도 맞춰줌
       useEffect(() => {
-        if (open == null) return;
-        setSnap(open ? 'half' : 'peek'); // 열면 기본 반열림으로
-      }, [open]);
+        if (peekHeight != null) setPeekLocal(peekHeight);
+        }, [peekHeight]);
 
       // 드래그 시작(헤더/그립에서만 시작)
       const onPointerDown = (e) => {
@@ -181,7 +185,13 @@ function BottomSheet({
                   type="button"
                   className="sheetClose"
                   aria-label="닫기"
-                  onClick={(e) => { e.stopPropagation(); setSnap('peek'); onClose?.(); }}
+                  onClick={(e) => {
+                       e.stopPropagation();
+                       // ✅ X 클릭 시에만 22vh로 변경
+                       setPeekLocal('22vh');
+                       setSnap('peek');
+                       onClose?.();
+                       }}
                 >
                   <svg viewBox="0 0 24 24" className="sheetCloseIcon" aria-hidden="true">
                     <path d="M6.4 5l5.6 5.6L17.6 5 19 6.4 13.4 12 19 17.6 17.6 19 12 13.4 6.4 19 5 17.6 10.6 12 5 6.4 6.4 5z"/>
@@ -192,7 +202,10 @@ function BottomSheet({
 
             {/* ✅ PlaceCards: 항상 렌더 → 닫힘에서도 일부 보임 */}
             <div className="sheetContent" onClick={(e) => e.stopPropagation()}>
-              <PlaceCards placeList={placeList} />
+              <PlaceCards
+                conversations={conversations}
+                selectedPlace={selectedPlace}
+              />
             </div>
 
             {/* 닫힘/반열림에서 살짝 가리는 그라데이션(원하면 유지) */}
@@ -202,4 +215,4 @@ function BottomSheet({
       );
     }
 }
-export default BottomSheet;
+export default BottomSection;

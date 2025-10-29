@@ -37,7 +37,7 @@
 
 .card-title {
   margin: 0 0 8px 0;
-  font-weight: 550;
+  font-weight: 700;
   font-size: 16px;
 }
 
@@ -55,54 +55,3 @@
   margin: 0;
   padding-left: 1em;
 }
-
-/* 작은 알약형 카테고리 칩 */
-.chip-pill{
-  border: 1px solid #e5e7eb;
-  border-radius: 999px;
-  padding: 4px 10px;
-  font-size: 12px;
-  background: #f9fafb;
-  color: #374151;
-  white-space: nowrap;
-}
-
-/* 메타 리스트 */
-.meta-list{
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  row-gap: 6px;
-}
-.meta-list li{
-  display: grid;
-  grid-template-columns: 72px 1fr;
-  column-gap: 8px;
-  align-items: baseline;
-}
-.meta-key{
-  color: #6b7280; /* gray-500 */
-  font-size: 12px;
-}
-.meta-val{
-  color: #111827; /* gray-900 */
-  font-size: 14px;
-  line-height: 1.4;
-  word-break: break-word;
-}
-
-/* 버튼 */
-.btn-outline{
-  display: inline-block;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 14px;
-  text-decoration: none;
-  color: #111827;
-  background: #fff;
-  transition: box-shadow .15s ease, transform .05s ease;
-}
-.btn-outline:hover{ box-shadow: 0 6px 12px rgba(0,0,0,.06); }
-.btn-outline:active{ transform: translateY(1px); }

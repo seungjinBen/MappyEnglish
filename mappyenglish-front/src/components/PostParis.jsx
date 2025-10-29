@@ -1,8 +1,10 @@
 import '../css/PostParis.css';
 import BottomBar from './Main/BottomBar'; // 파일이름은 무조건 대문자로!
 import BottomSheet from './Main/BottomSheet';
-import { useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import BottomSection from './Main/BottomSection';
+import { useState, useCallback, useRef, useEffect } from 'react';
+import axios from 'axios';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 
@@ -14,28 +16,89 @@ if (!apiKey) {
 }
 const GMAPS_LIBRARIES = ['places'];
 
+
 function PostParis({placeList = []}){
 
-  const [open, setOpen] = useState(false);
+    const navigate = useNavigate();
+    const { id } = useParams(); // /paris 또는 /paris/:id 모두 대응
+    const mapRef = useRef(null);
 
-  const navigate = useNavigate();
-  const [selectedPlace, setSelectedPlace] = useState(null);
-  const handleMarkerClick = (p) => {
-    setSelectedPlace(p);
-    // 필요하면 state로 정보도 함께 전달
-    navigate(`/paris/${p.id}`, {state: {place:p} });
-  };
+    const defaultCenter = { lat: 48.8584, lng: 2.3545 };
+    const hasId = Boolean(id);
 
-  const { isLoaded, loadError } = useJsApiLoader({
-    id: 'google-map',
-    googleMapsApiKey: apiKey,
-    libraries: GMAPS_LIBRARIES, // libraries: ['places'] 코드는
-    // 랜더때마다 ['places']를 새로 만들어 넘기면 스크립트를 다시 로드하려고 해서
-    // 경고가 남.
-  });
+    const [open, setOpen] = useState(false);
+    const [selectedPlace, setSelectedPlace] = useState(null);
 
-  if (loadError) return <div>지도를 불러오는 중 오류가 발생했습니다.</div>;
-  if (!isLoaded) return <div>지도 로딩 중…</div>;
+    // 대화 데이터
+    const [conversations, setConversations] = useState([]);
+    const [convLoading, setConvLoading] = useState(false);
+    const [convError, setConvError] = useState(null);
+
+    const { isLoaded, loadError } = useJsApiLoader({
+      id: 'google-map',
+      googleMapsApiKey: apiKey,
+      libraries: GMAPS_LIBRARIES, // libraries: ['places'] 코드는
+      // 랜더때마다 ['places']를 새로 만들어 넘기면 스크립트를 다시 로드하려고 해서
+      // 경고가 남.
+    });
+
+    const onMapLoad = useCallback((map) => {
+      mapRef.current = map;
+    }, []);
+
+    const panTo = useCallback((lat, lng, zoom = 15) => {
+      if (!mapRef.current) return;
+      mapRef.current.panTo({ lat, lng });
+      mapRef.current.setZoom(zoom);
+    }, []);
+
+    // 마커 클릭: 선택 + 중심 이동 + 라우팅
+    const handleMarkerClick = useCallback((p) => {
+      setSelectedPlace(p);
+      panTo(p.lat, p.lng);
+      navigate(`/paris/${p.id}`);
+    }, [navigate, panTo]);
+
+    // 지도 빈곳 클릭: 선택 해제 + 라우팅 원복 + 데이터 초기화
+    const handleMapClick = useCallback(() => {
+      setSelectedPlace(null);
+      setConversations([]);
+      setConvError(null);
+      navigate('/paris');
+    }, [navigate]);
+
+    // URL 파라미터(id) 변경 시: 해당 place를 찾아 중심 이동 + 대화 fetch
+    useEffect(() => {
+      if (!id) return;
+      const placeId = Number(id);
+
+      const p = placeList.find((x) => Number(x.id) === placeId);
+      if (p) {
+        setSelectedPlace(p);
+        panTo(p.lat, p.lng);
+      }
+
+      // 대화 fetch (프록시 사용: /api/...)
+      const fetchConversations = async () => {
+        setConvLoading(true);
+        setConvError(null);
+        try {
+          const { data } = await axios.get(`/api/conversations/place/${placeId}`);
+          const list = Array.isArray(data) ? data : (data?.content ?? []);
+          setConversations(list);
+        } catch (e) {
+          setConversations([]);
+          setConvError(e?.message || String(e));
+        } finally {
+          setConvLoading(false);
+        }
+      };
+      fetchConversations();
+    }, [id, placeList, panTo]);
+
+
+    if (loadError) return <div>지도를 불러오는 중 오류가 발생했습니다.</div>;
+    if (!isLoaded) return <div>지도 로딩 중…</div>;
 
 
     return(
@@ -68,13 +131,12 @@ function PostParis({placeList = []}){
                             </div>
                         </section>
 
-                        <GoogleMap onClick={()=> {
-                            setSelectedPlace(null);
-                            navigate('/paris');
-                        }}
-                          mapContainerStyle={{ width: '100%', height: '60vh' }}
-                          center={{ lat: 48.8584, lng: 2.3545 }}
-                          zoom={13}
+                        <GoogleMap
+                            onLoad={onMapLoad}
+                            onClick={handleMapClick}
+                            mapContainerStyle={{ width: '100%', height: '60vh' }}
+                            {...(!hasId ? { center: defaultCenter } : { defaultCenter })}
+                            zoom={13}
                         >
                         {placeList.map(p => (
                             <Marker key={p.id} position={{lat:p.lat, lng:p.lng}}
@@ -82,17 +144,18 @@ function PostParis({placeList = []}){
                             />
                             ))}
                         </GoogleMap>
-
-                        <BottomSheet
+                        <BottomSection
+                            conversations={conversations}
+                            selectedPlace={selectedPlace}
                             open={open}
                             onOpen={() => setOpen(true)}
                             onClose={() => setOpen(false)}
                             title="파리의 대표장소"
-                            peekHeight='22vh'   // 닫혀 있어도 카드 상단이 넉넉히 보이도록
+                            peekHeight='32vh'   // 닫혀 있어도 카드 상단이 넉넉히 보이도록
                             halfHeight = '50vh'
                             fullHeight = '90vh'
                         >
-                        </BottomSheet>
+                        </BottomSection>
                     </div>
                 </main>
 
