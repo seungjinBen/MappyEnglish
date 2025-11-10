@@ -1,6 +1,8 @@
 import './PlaceCards.css';
+import ConvCards from './ConvCards';
+import MediaCarousel from './MediaCarousel';
 
-export default function PlaceCards({conversations = [], selectedPlace = [] }) {
+export default function PlaceCards({conversations = [], selectedPlace = {} }) {
     if (!conversations) return null;
     if (!selectedPlace) return null;
 
@@ -13,9 +15,6 @@ export default function PlaceCards({conversations = [], selectedPlace = [] }) {
     };
 
     const { id, name, category, lat, lng, description, imgUrl } = selectedPlace;
-//    const { type, englishText1, koreanText1, englishText2, koreanText2, englishText3, koreanText3,
-//    englishText4, koreanText4, englishText5, koreanText5, englishText6, koreanText6} = Conversations;
-
     const catLabel = CATEGORY_LABELS[(category ?? '').toUpperCase()] ?? '분류없음';
   return (
     <section className="card-container">
@@ -32,16 +31,12 @@ export default function PlaceCards({conversations = [], selectedPlace = [] }) {
               {category && <span className="chip-pill">{catLabel}</span>}
             </div>
 
-            {/* 대표 이미지 */}
-            <picture>
-              <img
-                src={imgUrl || '/placeholder.jpg'}
-                loading="lazy"
-                alt={name || 'place image'}
-                className="card-img"
-                sizes="(max-width: 640px) 100vw, 640px"
-              />
-            </picture>
+            {/* 미디어 캐러셀 (이미지 + 비디오) */}
+            <MediaCarousel
+              placeId={id}
+              placeName={name}
+              fallbackSrc={imgUrl}
+            />
 
             {/* 설명 */}
             {description && (
@@ -56,7 +51,7 @@ export default function PlaceCards({conversations = [], selectedPlace = [] }) {
                 <li>
                   <span className="meta-key">운영 시간</span>
                   <span className="meta-val">
-                    넣을까 말까.. 주제에 맞으려나?
+                    넣어, 말아..
                   </span>
                 </li>
                 <li>
@@ -88,6 +83,7 @@ export default function PlaceCards({conversations = [], selectedPlace = [] }) {
           </article>
         </div>
       </div>
+      <ConvCards conversations={conversations}/>
     </section>
   );
 }

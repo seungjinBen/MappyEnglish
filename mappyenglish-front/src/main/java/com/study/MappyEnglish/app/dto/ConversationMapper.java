@@ -1,4 +1,4 @@
-package com.study.MappyEnglish.app.dto;
+package com.study.MappyEnglish.app.mapper;
 
 import com.study.MappyEnglish.app.entity.Conversation;
 import com.study.MappyEnglish.app.entity.Place;

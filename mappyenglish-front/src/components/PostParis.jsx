@@ -2,7 +2,7 @@ import '../css/PostParis.css';
 import BottomBar from './Main/BottomBar'; // 파일이름은 무조건 대문자로!
 import BottomSheet from './Main/BottomSheet';
 import BottomSection from './Main/BottomSection';
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -16,18 +16,40 @@ if (!apiKey) {
 }
 const GMAPS_LIBRARIES = ['places'];
 
+const CATEGORIES = [
+  { code: 'ALL', label: '모든 장소', className: 'place' },
+  { code: 'A',   label: '관광명소', className: 'tour' },
+  { code: 'B',   label: '음식점',   className: 'restaurant' },
+  { code: 'C',   label: '상점',     className: 'store' },
+  { code: 'D',   label: '대중교통', className: 'traffic' },
+  { code: 'E',   label: '기타 시설', className: 'others' },
+];
 
 function PostParis({placeList = []}){
 
     const navigate = useNavigate();
     const { id } = useParams(); // /paris 또는 /paris/:id 모두 대응
+    const hasId = Boolean(id);
+
     const mapRef = useRef(null);
 
-    const defaultCenter = { lat: 48.8584, lng: 2.3545 };
-    const hasId = Boolean(id);
+    const defaultCenter = useMemo(() => ({ lat: 48.8584, lng: 2.3545 }), []);
+    const mapOptions = useMemo(
+        () => ({
+          clickableIcons: false,
+          gestureHandling: 'greedy',
+          mapTypeControl: false,
+          streetViewControl: false,
+          fullscreenControl: false,
+          zoomControl: true,
+        }),
+        []
+      );
 
     const [open, setOpen] = useState(false);
     const [selectedPlace, setSelectedPlace] = useState(null);
+
+    const [category, setCategory] = useState('ALL');
 
     // 대화 데이터
     const [conversations, setConversations] = useState([]);
@@ -67,6 +89,20 @@ function PostParis({placeList = []}){
       navigate('/paris');
     }, [navigate]);
 
+    // 현재 카테고리에 맞는 장소만 계산
+    const filteredPlaces = useMemo(() => {
+      if (category === 'ALL') return placeList;
+      return placeList.filter((p) => String(p.category) === category);
+    }, [placeList, category]);
+
+    // 카테고리 바뀔 때 선택 장소/URL 정리 (필터에서 빠지면 해제)
+    useEffect(() => {
+      if (selectedPlace && category !== 'ALL' && String(selectedPlace.category) !== category) {
+        setSelectedPlace(null);
+        navigate('/paris');
+      }
+    }, [category, selectedPlace, navigate]);
+
     // URL 파라미터(id) 변경 시: 해당 place를 찾아 중심 이동 + 대화 fetch
     useEffect(() => {
       if (!id) return;
@@ -76,6 +112,10 @@ function PostParis({placeList = []}){
       if (p) {
         setSelectedPlace(p);
         panTo(p.lat, p.lng);
+        // URL로 직접 진입했을 때도 카테고리 자동 동기화(선택)
+        if (p.category && String(p.category) !== category) {
+          setCategory(String(p.category));
+        }
       }
 
       // 대화 fetch (프록시 사용: /api/...)
@@ -96,9 +136,21 @@ function PostParis({placeList = []}){
       fetchConversations();
     }, [id, placeList, panTo]);
 
-
     if (loadError) return <div>지도를 불러오는 중 오류가 발생했습니다.</div>;
     if (!isLoaded) return <div>지도 로딩 중…</div>;
+
+    // 버튼 공통 렌더러(활성 스타일 토글)
+    const Chip = ({ value, label, className }) => (
+      <button
+        className={`chip sm ${className ?? ''} ${category === value ? 'active' : ''}`}
+        onClick={() => setCategory(value)}
+        aria-pressed={category === value}
+        type="button"
+      >
+        {label}
+      </button>
+    );
+
 
 
     return(
@@ -121,12 +173,9 @@ function PostParis({placeList = []}){
                         <section className='main-container'>
                             <div className='category-bar'>
                                 <div className="buttons">
-                                    <button className="chip sm place"       onclick="initMap()">모든 장소</button>
-                                    <button className="chip sm tour"        onclick="initMapA()">관광명소</button>
-                                    <button className="chip sm restaurant"  onclick="initMapB()">음식점</button>
-                                    <button className="chip sm store"       onclick="initMapC()">상점</button>
-                                    <button className="chip sm traffic"     onclick="initMapD()">대중교통</button>
-                                    <button className="chip sm others"      onclick="initMapE()">기타 시설</button>
+                                  {CATEGORIES.map((c) => (
+                                       <Chip key={c.code} value={c.code} label={c.label} className={c.className} />
+                                  ))}
                                 </div>
                             </div>
                         </section>
@@ -134,11 +183,12 @@ function PostParis({placeList = []}){
                         <GoogleMap
                             onLoad={onMapLoad}
                             onClick={handleMapClick}
+                            options={mapOptions}
                             mapContainerStyle={{ width: '100%', height: '60vh' }}
                             {...(!hasId ? { center: defaultCenter } : { defaultCenter })}
                             zoom={13}
                         >
-                        {placeList.map(p => (
+                        {filteredPlaces.map(p => (
                             <Marker key={p.id} position={{lat:p.lat, lng:p.lng}}
                             onClick={() => handleMarkerClick(p)} title={p.name}
                             />

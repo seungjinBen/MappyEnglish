@@ -1,108 +1,50 @@
-/* 섹션 바깥 패딩 */
-.card-container {
-  padding: 16px 0;
-}
+/* --- 기존 내용 유지 --- */
+.card-container { padding: 16px 0; }
+.container.cq { container-type: inline-size; }
+.card-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+.card { border: 1px solid #e5e7eb; border-radius: 16px; padding: 12px; background: #fff; margin-bottom: 10px; }
+.shadow-soft { box-shadow: 0 8px 16px rgba(0,0,0,0.06); }
+.card-title { margin: 0 0 8px 0; font-weight: 550; font-size: 16px; }
+.card-img { width: 100%; height: auto; border-radius: 12px; display: block; margin-bottom: 12px; }
+.card-list { margin: 0; padding-left: 1em; }
+.chip-pill { border: 1px solid #e5e7eb; border-radius: 999px; padding: 4px 10px; font-size: 12px; background: #f9fafb; color: #374151; white-space: nowrap; }
+.meta-list { list-style: none; margin: 0; padding: 0; display: grid; row-gap: 6px; }
+.meta-list li { display: grid; grid-template-columns: 72px 1fr; column-gap: 8px; align-items: baseline; }
+.meta-key { color: #6b7280; font-size: 12px; }
+.meta-val { color: #111827; font-size: 14px; line-height: 1.4; word-break: break-word; }
+.btn-outline { display: inline-block; border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px 12px; font-size: 14px; text-decoration: none; color: #111827; background: #fff; transition: box-shadow .15s ease, transform .05s ease; }
+.btn-outline:hover { box-shadow: 0 6px 12px rgba(0,0,0,.06); }
+.btn-outline:active { transform: translateY(1px); }
 
-/* 안쪽 컨테이너 (컨테이너 쿼리 켜기) */
-.container.cq {
-  container-type: inline-size; /* 지원 브라우저에서만 동작 */
+/* --- 추가/보강: ConvCards 톤 맞춤 --- */
+.placecard { padding: 14px; border-radius: 16px; }
+.placecard__header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
 }
+.placecard__title { margin: 0; font-weight: 700; font-size: 18px; }
+.placecard__desc { margin: 8px 6px 12px 6px; line-height: 1.55; color: #374151; }
+.placecard__actions { display: flex; gap: 8px; margin-top: 8px; }
 
-/* 카드 그리드 기본: 1열 */
-.card-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-}
-
-/* 일반 미디어쿼리: 화면 넓을수록 2~3열 */
-@media (min-width: 480px) {
-  .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-@media (min-width: 900px) {
-  .card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-}
-
-/* 카드 공통 */
-.card {
-  border: 1px solid #e5e7eb;
+/* ✅ 캐러셀을 카드 내부 기준으로 고정 (컨트롤이 밖으로 나가지 않게) */
+.placecard .media-carousel {
+  position: relative;
   border-radius: 12px;
-  padding: 12px;
-  background: #fff;
-}
-
-.shadow-soft {
-  box-shadow: 0 8px 16px rgba(0,0,0,0.06);
-}
-
-.card-title {
-  margin: 0 0 8px 0;
-  font-weight: 550;
-  font-size: 16px;
-}
-
-/* 카드 이미지 */
-.card-img {
+  overflow: hidden;
   width: 100%;
-  height: auto;
-  border-radius: 12px;
-  display: block;
-  margin-bottom: 12px;
+  container-type: inline-size; /* 반응형 비율 전환용 */
 }
 
-/* 리스트 여백 정리 */
-.card-list {
-  margin: 0;
-  padding-left: 1em;
+/* 카드 컨테이너 너비에 따라 비율을 자연스럽게 변경(ConvCards 반응형 느낌) */
+@container (min-width: 520px) {
+  .placecard .media-slide { aspect-ratio: 16 / 10; }
+}
+@container (min-width: 800px) {
+  .placecard .media-slide { aspect-ratio: 21 / 9; }
 }
 
-/* 작은 알약형 카테고리 칩 */
-.chip-pill{
-  border: 1px solid #e5e7eb;
-  border-radius: 999px;
-  padding: 4px 10px;
-  font-size: 12px;
-  background: #f9fafb;
-  color: #374151;
-  white-space: nowrap;
+/* 작은 화면에서 글이 너무 붙어 보이지 않게 */
+@media (max-width: 480px) {
+  .placecard__title { font-size: 16px; }
+  .placecard__desc { font-size: 14px; }
 }
-
-/* 메타 리스트 */
-.meta-list{
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  row-gap: 6px;
-}
-.meta-list li{
-  display: grid;
-  grid-template-columns: 72px 1fr;
-  column-gap: 8px;
-  align-items: baseline;
-}
-.meta-key{
-  color: #6b7280; /* gray-500 */
-  font-size: 12px;
-}
-.meta-val{
-  color: #111827; /* gray-900 */
-  font-size: 14px;
-  line-height: 1.4;
-  word-break: break-word;
-}
-
-/* 버튼 */
-.btn-outline{
-  display: inline-block;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 14px;
-  text-decoration: none;
-  color: #111827;
-  background: #fff;
-  transition: box-shadow .15s ease, transform .05s ease;
-}
-.btn-outline:hover{ box-shadow: 0 6px 12px rgba(0,0,0,.06); }
-.btn-outline:active{ transform: translateY(1px); }

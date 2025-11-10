@@ -1,0 +1,106 @@
+/* ✅ 캐러셀도 컨테이너로 취급해 카드 너비 기준 반응형 가능 */
+.media-carousel {
+  position: relative;
+  width: 100%;
+  container-type: inline-size;
+}
+
+/* 1장만 보이게 */
+.media-viewport {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.media-track {
+  display: flex;
+  height: 100%;
+  will-change: transform;
+}
+
+/* ✅ 슬라이드가 ‘화면(뷰포트)’을 1:1로 채움 */
+.media-slide {
+  flex: 0 0 auto;
+  width: 100%;                /* JS에서 px로 다시 세팅되더라도 기본값 안전장치 */
+  display: grid;
+  place-items: center;
+  background: #f8fafc;
+  /* 👉 슬라이드에 비율을 줘서 반응형으로 커졌다/작아짐 */
+  aspect-ratio: 4 / 3;        /* 기본 비율(모바일) */
+  border-radius: 10px;
+  padding: 6px;
+}
+
+/* ✅ 미디어는 슬라이드를 가득 채움 (잘라내지 않음) */
+.media-img,
+.media-video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;         /* 전체가 보이게 */
+  background: #eef2f7;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+}
+
+/* 내비게이션/점/카운터는 동일 */
+.nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: rgba(0,0,0,0.35);
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  cursor: pointer;
+  z-index: 3;
+}
+.nav-btn:hover { background: rgba(0,0,0,0.5); }
+.nav-btn.left { left: 8px; }
+.nav-btn.right { right: 8px; }
+
+.dots {
+  position: absolute;
+  left: 0; right: 0; bottom: 8px;
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  z-index: 3;
+}
+.dot {
+  appearance: none;           /* UA 버튼 스타일 제거 */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  display: inline-block;
+  width: 2px;                 /* 원하는 크기 */
+  height: 2px;
+  padding: 0;                 /* 여백 제거 */
+  border: none;               /* 테두리 제거 */
+  margin: 0;
+  line-height: 0;             /* 버튼 높이 기반 보정 */
+  border-radius: 999px;
+  background: rgba(255,255,255,0.55); /* 기본 점: 연한 흰색 */
+  box-shadow: none;
+  cursor: pointer;
+}
+.dot.active { background: rgba(255,255,255,0.85); transform: scale(1.05); }
+
+.counter {
+  position: absolute;
+  right: 10px; bottom: 10px;
+  font-size: 12px;
+  background: rgba(0,0,0,0.45);
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+/* ✅ 컨테이너(=카드) 너비에 따라 비율/여백을 반응형 조정 */
+@container (min-width: 520px) {
+  .media-slide { aspect-ratio: 16 / 10; padding: 8px; }
+}
+@container (min-width: 800px) {
+  .media-slide { aspect-ratio: 21 / 9;  padding: 10px; }
+}
