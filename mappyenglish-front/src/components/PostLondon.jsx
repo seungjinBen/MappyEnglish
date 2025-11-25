@@ -1,9 +1,8 @@
 import '../css/PostParis.css';
 import Header from './Main/Header';
-import BottomBar from './Main/BottomBar';
+import BottomBar from './Main/BottomBar'; // 파일이름은 무조건 대문자로!
+import BottomSheet from './Main/BottomSheet';
 import BottomSection from './Main/BottomSection';
-import BottomSheet from './Main/BottomSheet'; // ✅ BottomSheet import 추가
-
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -11,8 +10,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 
 
-const apiKey = process.env.REACT_APP_GMAPS_KEY;
+const apiKey = process.env.REACT_APP_GMAPS_KEY; // ✅ CRA 방식
 if (!apiKey) {
+  // 런타임 가드(선택)
   throw new Error('REACT_APP_GMAPS_KEY 가 .env에 설정되지 않았습니다.');
 }
 const GMAPS_LIBRARIES = ['places'];
@@ -26,15 +26,14 @@ const CATEGORIES = [
   { code: 'E',   label: '기타 시설', className: 'others' },
 ];
 
-function PostParis({ placeList }){
+function PostLondon({ placeList }){
 
     const navigate = useNavigate();
     const { id } = useParams(); // /paris 또는 /paris/:id 모두 대응
-    const hasId = Boolean(id); // ✅ id가 있으면 true, 없으면 false
+    const hasId = Boolean(id);
 
     const mapRef = useRef(null);
-
-    const defaultCenter = useMemo(() => ({ lat: 48.8584, lng: 2.3245 }), []);
+    const defaultCenter = useMemo(() => ({ lat: 51.507, lng: -0.127 }), []);
     const mapOptions = useMemo(
         () => ({
           clickableIcons: false,
@@ -60,7 +59,9 @@ function PostParis({ placeList }){
     const { isLoaded, loadError } = useJsApiLoader({
       id: 'google-map',
       googleMapsApiKey: apiKey,
-      libraries: GMAPS_LIBRARIES,
+      libraries: GMAPS_LIBRARIES, // libraries: ['places'] 코드는
+      // 랜더때마다 ['places']를 새로 만들어 넘기면 스크립트를 다시 로드하려고 해서
+      // 경고가 남.
     });
 
     const onMapLoad = useCallback((map) => {
@@ -77,8 +78,7 @@ function PostParis({ placeList }){
     const handleMarkerClick = useCallback((p) => {
       setSelectedPlace(p);
       panTo(p.lat, p.lng);
-      navigate(`/paris/${p.id}`);
-      setOpen(true); // 마커 클릭 시 바텀시트 열기
+      navigate(`/london/${p.id}`);
     }, [navigate, panTo]);
 
     // 지도 빈곳 클릭: 선택 해제 + 라우팅 원복 + 데이터 초기화
@@ -86,43 +86,47 @@ function PostParis({ placeList }){
       setSelectedPlace(null);
       setConversations([]);
       setConvError(null);
-      navigate('/paris');
-      // setOpen(false); // 필요에 따라 닫을 수도, 리스트로 돌아가며 유지할 수도 있음
+      navigate('/london');
     }, [navigate]);
 
-    // city_id가 숫자 1(파리)이라고 가정
-    const parisPlaceList = useMemo(() => {
-          return (placeList || []).filter(p => p.cityId === 1);
+    // 수정
+    const londonPlaceList = useMemo(() => {
+          // city_id가 숫자 3이라고 가정
+          return (placeList || []).filter(p => p.cityId === 3);
     }, [placeList]);
 
+    // 수정
     // 현재 카테고리에 맞는 장소만 계산
     const filteredPlaces = useMemo(() => {
-      if (category === 'ALL') return parisPlaceList;
-      return parisPlaceList.filter((p) => String(p.category) === category);
-    }, [parisPlaceList, category]);
+      if (category === 'ALL') return londonPlaceList;
+      return londonPlaceList.filter((p) => String(p.category) === category);
+    }, [londonPlaceList, category]);
 
-    // 카테고리 바뀔 때 선택 장소/URL 정리
+    // 카테고리 바뀔 때 선택 장소/URL 정리 (필터에서 빠지면 해제)
     useEffect(() => {
       if (selectedPlace && category !== 'ALL' && String(selectedPlace.category) !== category) {
         setSelectedPlace(null);
-        navigate('/paris');
+        navigate('/london');
       }
     }, [category, selectedPlace, navigate]);
 
-    // URL 파라미터(id) 변경 시 로직
+    // 수정
+    // URL 파라미터(id) 변경 시: 해당 place를 찾아 중심 이동 + 대화 fetch
     useEffect(() => {
       if (!id) return;
       const placeId = Number(id);
 
-      const p = parisPlaceList.find((x) => Number(x.id) === placeId);
+      const p = londonPlaceList.find((x) => Number(x.id) === placeId);
       if (p) {
         setSelectedPlace(p);
         panTo(p.lat, p.lng);
+        // URL로 직접 진입했을 때도 카테고리 자동 동기화(선택)
         if (p.category && String(p.category) !== category) {
           setCategory(String(p.category));
         }
       }
 
+      // 대화 fetch (프록시 사용: /api/...)
       const fetchConversations = async () => {
         setConvLoading(true);
         setConvError(null);
@@ -138,11 +142,12 @@ function PostParis({ placeList }){
         }
       };
       fetchConversations();
-    }, [id, parisPlaceList, panTo, category]);
+    }, [id, londonPlaceList, panTo, category]); // 수정
 
     if (loadError) return <div>지도를 불러오는 중 오류가 발생했습니다.</div>;
     if (!isLoaded) return <div>지도 로딩 중…</div>;
 
+    // 버튼 공통 렌더러(활성 스타일 토글)
     const Chip = ({ value, label, className }) => (
       <button
         className={`chip sm ${className ?? ''} ${category === value ? 'active' : ''}`}
@@ -154,10 +159,14 @@ function PostParis({ placeList }){
       </button>
     );
 
+
+
     return(
         <div id='post-paris'>
             <div className="vh-screen" style={{minHeight:'100svh', display:'flex', flexDirection:'column'}}>
+                {/* 상단 */}
                 <Header/>
+                {/* 본문 */}
                 <main style={{ flex: 1, overflowY: 'auto', paddingBottom:
                     'calc(64px + max(var(--space-4), env(safe-area-inset-bottom)))' }}>
                     <div className="safe-padded" style={{flex:1}}>
@@ -185,45 +194,31 @@ function PostParis({ placeList }){
                             />
                             ))}
                         </GoogleMap>
-
-                        {/* ✅ 조건부 렌더링 적용 */}
-                        {hasId ? (
-                            // 1. 마커 클릭 시 (URL에 id 있음) -> 상세 회화화면(BottomSection)
-                            <BottomSection
-                                conversations={conversations}
-                                selectedPlace={selectedPlace}
-                                open={open}
-                                onOpen={() => setOpen(true)}
-                                onClose={() => setOpen(false)}
-                                title="장소 어휘표현"
-                                peekHeight='32vh'
-                                halfHeight = '50vh'
-                                fullHeight = '90vh'
-                            />
-                        ) : (
-                            // 2. 마커 미클릭 시 (URL에 id 없음) -> 파리 전체 장소 리스트(BottomSheet)
-                            <BottomSheet
-                                placeList={filteredPlaces} // 현재 필터링된 파리 장소들 전달
-                                open={open}
-                                onOpen={() => setOpen(true)}
-                                onClose={() => setOpen(false)}
-                                title="파리의 대표장소"
-                                peekHeight='32vh'
-                                halfHeight = '50vh'
-                                fullHeight = '90vh'
-                            />
-                        )}
-
+                        <BottomSection
+                            conversations={conversations}
+                            selectedPlace={selectedPlace}
+                            open={open}
+                            onOpen={() => setOpen(true)}
+                            onClose={() => setOpen(false)}
+                            title="런던의 대표장소"
+                            peekHeight='32vh'   // 닫혀 있어도 카드 상단이 넉넉히 보이도록
+                            halfHeight = '50vh'
+                            fullHeight = '90vh'
+                        >
+                        </BottomSection>
                     </div>
                 </main>
+
+                {/* 하단 네비 (노치/홈바 안전) */}
                 <BottomBar/>
             </div>
         </div>
     )
 }
 
-PostParis.defaultProps = {
+// [수정] 프롭 기본값 설정 (컴포넌트 밖이나 내부에서 구조분해할당 시)
+PostLondon.defaultProps = {
   placeList: []
 };
 
-export default PostParis;
+export default PostLondon;

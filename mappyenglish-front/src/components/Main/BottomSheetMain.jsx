@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import './BottomSheet.css';
+// import PlaceOnlyCards from './PlaceOnlyCards'; // 사용하지 않는다면 주석
 import './PlaceCards.css';
-import './MediaCarousel.css';
-import { Link } from 'react-router-dom'; // ✅ Link 임포트 필수
+import MediaCarousel from './MediaCarousel';
+import { Link } from 'react-router-dom'; // Link 사용 권장 (SPA)
 
-function BottomSheet({
+function BottomSheetMain({
   placeList,
   open,
   onOpen,
@@ -14,17 +15,18 @@ function BottomSheet({
   halfHeight,
   fullHeight
 }) {
-    // ❌ 삭제: 배열을 구조분해 할당하면 오류가 납니다.
+    const sheetRef = useRef(null);
+
+    // ❌ 삭제: 배열을 객체처럼 분해하면 안 됩니다.
     // const { id, name, category, lat, lng, description, imgUrl } = placeList;
 
-    const sheetRef = useRef(null);
+    // 내부 스냅 상태: 'peek' | 'half' | 'full'
     const [snap, setSnap] = useState('peek');
-
-    // ... (드래그, 스냅 로직은 기존과 100% 동일하여 생략, 아래 return 부분만 수정하시면 됩니다) ...
-    // 기존의 useRef, useMemo, toPx, useEffect, 핸들러 함수들은 그대로 두세요.
-
     const dragRef = useRef({ dragging: false, startY: 0, startVisiblePx: 0 });
+
+    // viewport 높이(px)
     const vh = useMemo(() => (typeof window !== 'undefined' ? window.innerHeight : 800), []);
+
     const toPx = (val) => {
         if (typeof val === 'number') return val;
         if (typeof val === 'string' && val.trim().endsWith('vh')) {
@@ -36,10 +38,12 @@ function BottomSheet({
         const n = Number(val);
         return Number.isFinite(n) ? n : 0;
     };
+
     const peekPx = toPx(peekHeight);
     const halfPx = toPx(halfHeight);
     const fullPx = toPx(fullHeight);
 
+    // CSS 변수 설정 및 스냅 로직 (기존과 동일)
     useEffect(() => {
         const el = sheetRef.current;
         if (!el) return;
@@ -56,6 +60,7 @@ function BottomSheet({
         setSnap(open ? 'half' : 'peek');
     }, [open]);
 
+    // 드래그 핸들러들 (기존과 동일)
     const onPointerDown = (e) => {
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
         dragRef.current.dragging = true;
@@ -87,12 +92,14 @@ function BottomSheet({
         window.removeEventListener('pointerup', onPointerUp);
         window.removeEventListener('touchmove', onPointerMove);
         window.removeEventListener('touchend', onPointerUp);
+
         const el = sheetRef.current;
         if (!el) return;
         const cs = getComputedStyle(el);
         const curr = parseFloat(cs.getPropertyValue('--visible-height')) || peekPx;
         const midBetweenPeekHalf = (peekPx + halfPx) / 2;
         const midBetweenHalfFull = (halfPx + fullPx) / 2;
+
         let next = 'peek';
         if (curr >= midBetweenHalfFull) next = 'full';
         else if (curr >= midBetweenPeekHalf) next = 'half';
@@ -100,6 +107,14 @@ function BottomSheet({
         setSnap(next);
         if (next === 'peek') onClose?.();
         else onOpen?.();
+    };
+
+    // ✅ 각 도시별 설정값 매핑 (ID 기준)
+    const cityConfig = {
+        52:  { path: '/paris',     label: '파리 둘러보기' },
+        64:  { path: '/london',    label: '런던 둘러보기' },
+        98:  { path: '/nice',      label: '니스 둘러보기' },
+        113: { path: '/edinburgh', label: '에든버러 둘러보기' }
     };
 
     return (
@@ -129,7 +144,7 @@ function BottomSheet({
                     onPointerDown={onPointerDown}
                     onTouchStart={onPointerDown}
                 >
-                    <div className="sheetGrabber" title="끌어올리거나 내려서 열기/닫기" />
+                    <div className="sheetGrabber" />
                     <div className="sheetHeaderRow">
                         <div className="sheetTitle">{title}</div>
                         <button type="button" className="sheetClose" onClick={(e) => { e.stopPropagation(); setSnap('peek'); onClose?.(); }}>
@@ -143,53 +158,56 @@ function BottomSheet({
 
                 <div className="sheetContent" onClick={(e) => e.stopPropagation()}>
                     <section className="card-container">
-                          <div className="container cq">
-                            <div className="card-grid mq-2col">
+                      <div className="container cq">
+                        <div className="card-grid mq-2col">
 
-                              {/* ✅ 리스트 반복 렌더링 시작 */}
-                              {placeList && placeList.map(place => (
-                                  <article key={place.id} className="card shadow-soft">
-                                    <div style={{display:'flex', margin: '0 0 10px 5px', alignItems:'center', justifyContent:'space-between', gap:8}}>
-                                      <h3 className="card-title" style={{marginBottom: 0}}>
-                                        {place.name ?? '이름 없음'}
-                                      </h3>
-                                    </div>
+                          {placeList && placeList.length > 0 ? (
+                                placeList.map((place) => {
+                                  // ✅ 현재 반복중인 장소의 ID로 설정값 가져오기
+                                  // 설정이 없으면 기본값(path='/', label='이동하기') 사용
+                                  const config = cityConfig[place.id] || { path: '/', label: '지도 보기' };
 
-                                    <div className="media-carousel">
-                                      <div className="media-viewport">
-                                        {/* 트랙(track) 없이 바로 슬라이드 하나만 배치 */}
-                                        <div className="media-slide">
-                                          <img
-                                            className="media-img"
-                                            src={place.imgUrl || '/placeholder.jpg'}
-                                            alt={place.name}
-                                            loading="lazy"
+                                  return (
+                                      <article key={place.id} className="card shadow-soft">
+                                          <div style={{display:'flex', margin: '0 0 10px 5px', alignItems:'center', justifyContent:'space-between', gap:8}}>
+                                              <h3 className="card-title" style={{marginBottom: 0}}>
+                                                  {place.name ?? '이름 없음'}
+                                              </h3>
+                                          </div>
+
+                                          <MediaCarousel
+                                              placeId={place.id}
+                                              placeName={place.name}
+                                              fallbackSrc={place.imgUrl}
                                           />
-                                        </div>
-                                      </div>
-                                    </div>
 
-                                    {place.description && (
-                                      <p style={{margin: '0 5px 10px 5px', lineHeight: 1.5, color: '#374151'}}>
-                                        {place.description}
-                                      </p>
-                                    )}
+                                          {place.description && (
+                                              <p style={{margin: '0 5px 10px 5px', lineHeight: 1.5, color: '#374151'}}>
+                                                  {place.description}
+                                              </p>
+                                          )}
 
-                                    {/* ✅ 라우팅 버튼 수정됨 */}
-                                    <div style={{display:'flex', gap:8, marginTop:8}}>
-                                        <Link
-                                          className="btn-outline"
-                                          to={`/paris/${place.id}`} // 파리 + 장소ID 조합
-                                          style={{ width: '100%', textAlign: 'center', justifyContent: 'center' }}
-                                        >
-                                          실전 회화 연습
-                                        </Link>
-                                    </div>
-                                  </article>
-                              ))}
+                                          <div style={{display:'flex', gap:8, marginTop:8}}>
+                                              {/* ✅ 동적으로 설정된 링크와 라벨 적용 */}
+                                              <Link
+                                                  className="btn-outline"
+                                                  to={config.path}
+                                                  style={{ width: '100%', textAlign: 'center', justifyContent: 'center' }} // 버튼 가운데 정렬 스타일 추가
+                                              >
+                                                  {config.label}
+                                              </Link>
+                                          </div>
+                                      </article>
+                                  );
+                                })
+                            ) : (
+                                <div style={{padding: '20px', textAlign:'center', color:'#999'}}>
+                                    로딩 중...
+                                </div>
+                          )}
 
-                            </div>
-                          </div>
+                        </div>
+                      </div>
                     </section>
                 </div>
                 <div className="sheetMask" />
@@ -198,4 +216,4 @@ function BottomSheet({
     );
 }
 
-export default BottomSheet;
+export default BottomSheetMain;
