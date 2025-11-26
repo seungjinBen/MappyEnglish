@@ -3,6 +3,7 @@
 // =============================
 import React, { useRef } from "react";
 import "./ConvCards.css";
+import BookmarkButton from "./BookmarkButton";
 
 /**
  * conversations: Array<{
@@ -47,9 +48,14 @@ function ConvCard({ conv, meLabel, otherLabel, index }) {
         <span className="card__index">
           #{index}{conv?.place?.name ? ' · ' + conv.place.name : ''}
         </span>
-        <span className={`badge ${startSide === 'me' ? 'badge--me' : 'badge--other'}`}>
-          {startSide === 'me' ? 'Type A · 회화 저장' : 'Type B · 회화 저장'}
-        </span>
+//        <span className={`badge ${startSide === 'me' ? 'badge--me' : 'badge--other'}`}>
+//          {startSide === 'me' ? 'Type A · 회화 저장' : 'Type B · 회화 저장'}
+//        </span>
+        <BookmarkButton className="badge"
+          userId={5} // 로그인된 유저 ID
+          conversationId={conv.id} // 현재 카드의 대화 ID
+          initialIsSaved={false} // (선택) 처음 로딩 시 저장 여부를 안다면 전달
+       />
       </header>
 
       <div className="chat">

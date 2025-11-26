@@ -170,7 +170,14 @@ function BottomSheet({
                                     </div>
 
                                     {place.description && (
-                                      <p style={{margin: '0 5px 10px 5px', lineHeight: 1.5, color: '#374151'}}>
+                                      <p style={{
+                                        fontSize: '14px',
+                                        lineHeight: '1.6',
+                                        color: '#333333',             // 또렷한 회색
+                                        margin: '6px',
+                                        wordBreak: 'keep-all',
+                                        letterSpacing: '-0.3px'
+                                      }}>
                                         {place.description}
                                       </p>
                                     )}
@@ -180,7 +187,7 @@ function BottomSheet({
                                         <Link
                                           className="btn-outline"
                                           to={`/paris/${place.id}`} // 파리 + 장소ID 조합
-                                          style={{ width: '100%', textAlign: 'center', justifyContent: 'center' }}
+                                          style={{ width: '100%', textAlign: 'center', justifyContent: 'center'}}
                                         >
                                           실전 회화 연습
                                         </Link>

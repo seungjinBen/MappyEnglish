@@ -21,25 +21,36 @@
 /* ✅ 슬라이드가 ‘화면(뷰포트)’을 1:1로 채움 */
 .media-slide {
   flex: 0 0 auto;
-  width: 100%;                /* JS에서 px로 다시 세팅되더라도 기본값 안전장치 */
-  display: grid;
-  place-items: center;
-  background: #f8fafc;
-  /* 👉 슬라이드에 비율을 줘서 반응형으로 커졌다/작아짐 */
+  width: 100%;
+  /* display: grid;  <- 제거 (불필요) */
+  /* place-items: center; <- 제거 (불필요) */
+
+  /* ✅ 패딩과 배경색을 제거하여 이미지가 꽉 차게 합니다. */
+  padding: 0;
+  background: none;
+
+  /* ✅ 컨테이너의 둥근 모서리를 설정하고, 넘치는 이미지를 잘라냅니다. */
+  border-radius: 12px; /* 카드의 둥근 정도에 맞춰 조정 */
+  overflow: hidden;    /* 중요: 자식 이미지가 둥근 영역 밖으로 나가지 않게 함 */
+
+  /* 👉 슬라이드에 비율을 줘서 반응형으로 커졌다/작아짐 (유지) */
   aspect-ratio: 4 / 3;        /* 기본 비율(모바일) */
-  border-radius: 10px;
-  padding: 6px;
 }
 
-/* ✅ 미디어는 슬라이드를 가득 채움 (잘라내지 않음) */
+/* ✅ 미디어는 슬라이드를 가득 채움 (잘라내지 않음 -> 잘라냄으로 변경) */
 .media-img,
 .media-video {
   width: 100%;
   height: 100%;
-  object-fit: contain;         /* 전체가 보이게 */
-  background: #eef2f7;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+
+  /* 🔥 핵심 수정: contain -> cover */
+  /* 비율을 유지한 채로 컨테이너를 완전히 덮습니다. 넘치는 부분은 잘립니다. */
+  object-fit: cover;
+
+  /* ✅ 이미지 자체의 둥근 모서리와 배경색, 그림자는 제거합니다. (부모가 처리함) */
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
 }
 
 /* 내비게이션/점/카운터는 동일 */
@@ -69,24 +80,33 @@
   z-index: 3;
 }
 .dot {
-  appearance: none;           /* UA 버튼 스타일 제거 */
+  appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-
-  display: inline-block;
-  width: 2px;                 /* 원하는 크기 */
-  height: 2px;
-  padding: 0;                 /* 여백 제거 */
-  border: none;               /* 테두리 제거 */
+  display: block;             /* inline-block 대신 block 권장 (크기 제어 용이) */
+  /* ✅ 여기가 핵심입니다: 글로벌 버튼 스타일 무력화 */
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
   margin: 0;
-  line-height: 0;             /* 버튼 높이 기반 보정 */
-  border-radius: 999px;
-  background: rgba(255,255,255,0.55); /* 기본 점: 연한 흰색 */
-  box-shadow: none;
+  border: none;
+  /* ✅ 원하는 크기 설정 (2px는 너무 작으니 6~8px 추천) */
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;         /* 완벽한 원형 */
+  background: rgba(255, 255, 255, 0.5); /* 반투명 흰색 */
+  box-shadow: 0 1px 2px rgba(0,0,0,0.3); /* 살짝 그림자 주면 더 잘 보임 */
   cursor: pointer;
+  /* 클릭 시 깜빡임 방지 */
+  -webkit-tap-highlight-color: transparent;
 }
-.dot.active { background: rgba(255,255,255,0.85); transform: scale(1.05); }
 
+/* 활성화된 점 스타일 */
+.dot.active {
+  background: #fff;           /* 활성화되면 완전 흰색 */
+  transform: scale(1.2);      /* 살짝 커짐 */
+  opacity: 1;
+}
 .counter {
   position: absolute;
   right: 10px; bottom: 10px;
@@ -99,8 +119,9 @@
 
 /* ✅ 컨테이너(=카드) 너비에 따라 비율/여백을 반응형 조정 */
 @container (min-width: 520px) {
-  .media-slide { aspect-ratio: 16 / 10; padding: 8px; }
+  /* 패딩 제거했으므로 aspect-ratio만 유지 */
+  .media-slide { aspect-ratio: 16 / 10; }
 }
 @container (min-width: 800px) {
-  .media-slide { aspect-ratio: 21 / 9;  padding: 10px; }
+  .media-slide { aspect-ratio: 21 / 9; }
 }

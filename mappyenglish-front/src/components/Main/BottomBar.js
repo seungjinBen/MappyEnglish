@@ -30,9 +30,9 @@ function BottomBar(){
           <div className="safe-padded" /* ... */>
             <div className="container bottom-nav">
               <Link className="btn" to="/">메인지도</Link>
-              <Link className="btn" to="/">{isHome ? '도시 선택' : '카테고리'}</Link>
+              <Link className="btn" to="/">{isHome ? '도시 선택' : '퀴즈/상황별 대화'}</Link>
               {/* onClick 이벤트를 추가하여 가로챕니다 */}
-              <Link className="btn" to="/my-card" onClick={handleMyCardClick}>
+              <Link className="btn" to="/my-cards" onClick={handleMyCardClick}>
                   내 회화노트
               </Link>
             </div>

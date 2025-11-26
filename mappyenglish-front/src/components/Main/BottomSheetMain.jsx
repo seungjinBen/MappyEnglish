@@ -182,7 +182,14 @@ function BottomSheetMain({
                                           />
 
                                           {place.description && (
-                                              <p style={{margin: '0 5px 10px 5px', lineHeight: 1.5, color: '#374151'}}>
+                                              <p style={{
+                                                    fontSize: '14px',
+                                                    lineHeight: '1.6',
+                                                    color: '#333333',             // 또렷한 회색
+                                                    margin: '6px',
+                                                    wordBreak: 'keep-all',
+                                                    letterSpacing: '-0.3px'
+                                                  }}>
                                                   {place.description}
                                               </p>
                                           )}
