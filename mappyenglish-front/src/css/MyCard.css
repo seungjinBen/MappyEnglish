@@ -1,0 +1,197 @@
+/* 전체 페이지 컨테이너 */
+.my-card-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* 전체 화면 높이 사용 */
+  background-color: #F9FAFB; /* 부드러운 배경색 */
+}
+
+/* 로딩 화면 */
+.loading-screen, .empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60vh;
+  color: #6B7280;
+  font-size: 1.1rem;
+}
+
+/* === 상단 헤더 === */
+.my-header {
+  padding: 24px 20px;
+  background-color: #fff;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.page-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.save-count {
+  font-size: 14px;
+  color: #3B82F6; /* 파란색 강조 */
+  font-weight: 600;
+  background-color: #EFF6FF;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.header-desc {
+  font-size: 14px;
+  color: #6B7280;
+  margin: 0;
+}
+
+/* === 메인 리스트 영역 === */
+.card-list-container {
+  flex: 1; /* 남은 공간 모두 차지 */
+  overflow-y: auto; /* 스크롤 생성 */
+  padding: 20px;
+  padding-bottom: 50px;
+}
+
+/* 날짜 구분선 (옵션) */
+.date-divider {
+  font-size: 13px;
+  color: #9CA3AF;
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.card-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-bottom: 20px; /* 하단 바와 간격 */
+}
+
+/* === 개별 카드 스타일 === */
+.conversation-card {
+  display: flex;
+  background-color: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0,0,0,0.02);
+  border: 1px solid #F3F4F6;
+}
+
+.color-bar {
+  width: 6px;
+  flex-shrink: 0;
+}
+
+.card-content {
+  flex: 1;
+  padding: 16px 20px;
+}
+
+/* 카드 상단 (태그, 북마크) */
+.card-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.place-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 8px;
+}
+
+/* === 대화 내용 영역 (핵심 수정 부분) === */
+.dialogue-area {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 각 대화 줄 */
+.dialogue-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 14px 0; /* 상하 간격 넓힘 */
+  border-bottom: 1px solid #D1D5DB; /* ★ 부드러운 구분선 추가 */
+}
+
+/* 마지막 줄은 구분선 제거 */
+.dialogue-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+/* 첫 번째 줄은 상단 패딩 제거 */
+.dialogue-row:first-child {
+  padding-top: 0;
+}
+
+.dialogue-text-group {
+  flex: 1;
+  padding-right: 12px;
+}
+
+/* 영어 텍스트 */
+.english-text {
+  font-size: 16px;
+  /* font-weight: 700;  <- 기존 볼드체 제거 */
+  font-weight: 600;  /* 약간 굵게 or 400(normal)로 변경 가능 */
+  color: #111827; /* 진한 검정 */
+  margin: 0 0 6px 0;
+  line-height: 1.5;
+}
+/* 한국어 텍스트 */
+.korean-text {
+  font-size: 13px;
+  color: #868e96; /* 더 연한 회색으로 변경 */
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* 미니 듣기 버튼 */
+.speak-btn-mini {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  margin-top: 2px; /* 텍스트 높이와 맞춤 */
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.speak-btn-mini:hover {
+  background-color: #F3F4F6;
+}
+
+/* 3. 삭제 버튼 스타일 (새로 추가) */
+.delete-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-btn:hover {
+  background-color: #FEE2E2; /* 연한 빨간 배경 */
+}
+
+/* (기존 하단 바가 fixed가 아니라면) 메인 영역 하단에 패딩 추가 */
+/* .card-list-container { padding-bottom: 70px; } */

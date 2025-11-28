@@ -189,7 +189,7 @@ function BottomSheet({
                                           to={`/paris/${place.id}`} // 파리 + 장소ID 조합
                                           style={{ width: '100%', textAlign: 'center', justifyContent: 'center'}}
                                         >
-                                          실전 회화 연습
+                                          실전 회화 연습하기
                                         </Link>
                                     </div>
                                   </article>

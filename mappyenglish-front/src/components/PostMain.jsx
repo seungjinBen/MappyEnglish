@@ -142,12 +142,11 @@ function PostMain({placeList = []}){
                         title="각 도시의 대표장소"
                         peekHeight='32vh'
                         halfHeight = '50vh'
-                        fullHeight = '90vh'
+                        fullHeight = '91vh'
                     >
                     </BottomSheetMain>
                 </div>
             </main>
-            <BottomBar/>
             </div>
         </div>
     )

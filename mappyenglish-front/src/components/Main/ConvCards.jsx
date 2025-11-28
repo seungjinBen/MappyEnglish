@@ -1,16 +1,13 @@
-// =============================
-// File: ConvCards.jsx
-// =============================
 import React, { useRef } from "react";
 import "./ConvCards.css";
 import BookmarkButton from "./BookmarkButton";
 
 /**
  * conversations: Array<{
- *   id: number,
- *   type: 'A'|'B', // A = 내가 먼저, B = 상대가 먼저
- *   place?: { name?: string, ... },
- *   lines: Array<{ lineOrder:number, englishText:string, koreanText:string, audioUrl?:string }>
+ * id: number,
+ * type: 'A'|'B',
+ * place?: { name?: string, ... },
+ * lines: Array<{ lineOrder:number, englishText:string, koreanText:string, audioUrl?:string }>
  * }>
  */
 export function ConvCards({ conversations = [], meLabel = 'Me', otherLabel = 'Partner' }) {
@@ -28,7 +25,7 @@ function ConvCard({ conv, meLabel, otherLabel, index }) {
   const startSide = String(conv?.type || 'A').toUpperCase() === 'A' ? 'me' : 'other';
   const altSide = startSide === 'me' ? 'other' : 'me';
 
-  // lineOrder 기준 정렬 (없으면 입력 순서 유지)
+  // lineOrder 기준 정렬
   const lines = Array.isArray(conv?.lines) ? [...conv.lines] : [];
   lines.sort((a, b) => {
     const ao = typeof a?.lineOrder === 'number' ? a.lineOrder : Number.MAX_SAFE_INTEGER;
@@ -38,23 +35,24 @@ function ConvCard({ conv, meLabel, otherLabel, index }) {
 
   const msgs = lines.map((l, i) => {
     const order = typeof l.lineOrder === 'number' ? l.lineOrder : i + 1;
-    const side = order % 2 === 1 ? startSide : altSide; // 홀수=시작자, 짝수=상대
+    const side = order % 2 === 1 ? startSide : altSide;
     return { order, side, en: l?.englishText || '', ko: l?.koreanText || '', audio: l?.audioUrl || '' };
   });
 
   return (
     <section className="card" aria-label={`Conversation ${index}`}>
       <header className="card__header">
-        <span className="card__index">
-          #{index}{conv?.place?.name ? ' · ' + conv.place.name : ''}
+        {/* 요청하신 대로 #숫자 제거, 장소 이름만 남김 */}
+        <span className="card__title">
+          {conv?.place?.name || ''}
         </span>
-//        <span className={`badge ${startSide === 'me' ? 'badge--me' : 'badge--other'}`}>
-//          {startSide === 'me' ? 'Type A · 회화 저장' : 'Type B · 회화 저장'}
-//        </span>
-        <BookmarkButton className="badge"
-          userId={5} // 로그인된 유저 ID
-          conversationId={conv.id} // 현재 카드의 대화 ID
-          initialIsSaved={false} // (선택) 처음 로딩 시 저장 여부를 안다면 전달
+
+        {/* Type, 회화 저장 배지 제거됨 */}
+
+        <BookmarkButton 
+          className="badge"
+          conversationId={conv.id}
+          initialIsSaved={conv.isSaved || false}
        />
       </header>
 

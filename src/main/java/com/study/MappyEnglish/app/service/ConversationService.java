@@ -34,4 +34,8 @@ public class ConversationService {
                 : repo.findAllByPlaceId(placeId);
         return list.stream().map(ConversationMapper::toDto).toList();
     }
+
+    public List<Conversation> findByCategory(String category) {
+        return repo.findByCategory(category);
+    }
 }

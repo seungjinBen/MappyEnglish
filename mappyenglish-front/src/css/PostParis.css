@@ -48,7 +48,7 @@
 
 /* 활성 상태 (선택됨) */
 .chip.active { /* .is-active 대신 React 코드의 .active와 맞춤 */
-  background:#2563eb; color:#fff; border-color:#2563eb;
+  background:#3B82F6; color:#fff; border-color:#2563eb;
   box-shadow:0 8px 20px rgba(37,99,235,.28);
 }
 

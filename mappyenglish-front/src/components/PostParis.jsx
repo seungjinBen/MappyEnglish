@@ -118,6 +118,9 @@ function PostParis({ placeList }){
     const [convLoading, setConvLoading] = useState(false);
     const [convError, setConvError] = useState(null);
 
+    // 시트 열림 상태 관리
+    const [isSheetOpen, setIsSheetOpen] = useState(false);
+
     const { isLoaded, loadError } = useJsApiLoader({
       id: 'google-map',
       googleMapsApiKey: apiKey,
@@ -325,7 +328,7 @@ function PostParis({ placeList }){
                                 title="실전 회화연습"
                                 peekHeight='32vh'
                                 halfHeight = '50vh'
-                                fullHeight = '90vh'
+                                fullHeight = '91vh'
                             />
                         ) : (
                             // 2. 마커 미클릭 시 (URL에 id 없음) -> 파리 전체 장소 리스트(BottomSheet)
@@ -337,13 +340,12 @@ function PostParis({ placeList }){
                                 title="파리의 대표장소"
                                 peekHeight='32vh'
                                 halfHeight = '50vh'
-                                fullHeight = '90vh'
+                                fullHeight = '91vh'
                             />
                         )}
 
                     </div>
                 </main>
-                <BottomBar/>
             </div>
         </div>
     )

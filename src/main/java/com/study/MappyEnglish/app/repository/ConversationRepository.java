@@ -33,4 +33,7 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
            where c.place.id = :placeId
            """)
     List<Conversation> findAllByPlaceIdWithPlace(@Param("placeId") Long placeId);
+    // 한국어 해석에서 키워드 검색 (장소 정보도 같이 가져오기 위해 EntityGraph 사용 권장하지만, 일단 기본 쿼리)
+    List<Conversation> findByKoreanText1ContainingIgnoreCase(String keyword);
+    List<Conversation> findByCategory(String category);
 }

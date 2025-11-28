@@ -60,4 +60,6 @@ public class Conversation {
     private String koreanText5;
     @Column(name = "audio_url5")
     private String audioUrl5;
+    @Column(name = "category")
+    private String category;
 }
